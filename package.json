@@ -8,10 +8,9 @@
     "tunnel": "lt --port 5051 --subdomain miminoteai2003",
     "dev": "nodemon server.js",
     "tw:init": "tailwindcss init -p",
-    "tw:build": "tailwindcss -i ./src/input.css -o ./styles.css --minify",
-    "tw:watch": "tailwindcss -i ./src/input.css -o ./styles.css --watch",
+    "tw:build": "node node_modules/tailwindcss/lib/cli.js -i ./src/input.css -o ./styles.css --minify",
+    "tw:watch": "node node_modules/tailwindcss/lib/cli.js -i ./src/input.css -o ./styles.css --watch",
     "build": "npm run tw:build && node server.js"
- 
   },
   "dependencies": {
     "@ffprobe-installer/ffprobe": "^2.1.2",
@@ -28,19 +27,17 @@
     "multer": "^1.4.5-lts.1",
     "openai": "^5.20.1",
     "pdfkit": "^0.17.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "tailwindcss": "^4.1.13",
+    "postcss": "^8.5.6",
+    "autoprefixer": "^10.4.21"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
     "localtunnel": "^2.0.2",
-    "nodemon": "^3.1.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.13"
+    "nodemon": "^3.1.0"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": ""
-
-  
 }
