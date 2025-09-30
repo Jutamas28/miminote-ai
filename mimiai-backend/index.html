@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MimiNote.AI — AI ผู้ช่วยสรุปการประชุมของคุณ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico">
+
+  <!-- Google Fonts (หัวข้อ/เนื้อหาโทนน่ารัก อ่านง่าย) -->
+  <link href="https://fonts.googleapis.com/css2?family=Itim&family=Mali:wght@300;400;600;700&family=Kodchasan:wght@400;600&family=Noto+Sans+Thai+Rounded:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- (ตัวเลือก) Tailwind เฉพาะ dev; ใช้บางคลาสที่ยังเหลือ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- สไตล์หลักที่จัดใหม่ให้เรียบร้อย -->
+  <link rel="stylesheet" href="/style.css">
+
+  <!-- สคริปต์หลัก (โหลดหลัง DOM) -->
+  <script src="/script.js" defer></script>
+</head>
+<body>
+
+  
+  <!-- ========== Auth Page ========== -->
+  <div id="authPage" class="flex items-center justify-center min-h-screen">
+    <div class="card section w-full max-w-sm">
+      <div class="flex flex-col items-center gap-1 mb-2">
+        <img src="/logo.png" class="h-20 w-auto" alt="MimiNote.AI logo" loading="lazy"/>
+        <span class="logo-title">MimiNote.AI</span>
+      </div>
+
+      <h2 id="form-title" class="text-xl font-bold mb-4 text-center">เข้าสู่ระบบ</h2>
+
+      <form id="auth-form" class="space-y-3">
+        <input id="username" class="input" placeholder="ชื่อผู้ใช้" required/>
+        <input id="password" type="password" class="input" placeholder="รหัสผ่าน" required/>
+        <label class="flex items-center gap-2 text-sm">
+          <input id="remember" type="checkbox"/> จำฉันไว้
+        </label>
+        <button type="submit" class="btn btn-pink w-full" id="submitAuth">ยืนยัน</button>
+      </form>
+
+      <p id="toggle-text" class="mt-3 text-sm text-center">
+        ยังไม่มีบัญชี? <a href="#" id="toggle-link" class="text-pink-600 font-semibold">สมัครสมาชิก</a>
+      </p>
+      <p class="mt-2 text-xs text-center text-gray-600">
+        <a href="#" id="forgot-link">ลืมรหัสผ่าน?</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ========== App Page ========== -->
+  <div id="appPage" class="hidden">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="logo-wrap">
+          <img src="/logo.png" alt="MimiNote.AI" style="height:56px" loading="lazy"/>
+          <div class="logo-title">MimiNote.AI</div>
+        </div>
+        <div class="welcome">
+          ยินดีต้อนรับ <b id="welcomeName">ผู้ใช้</b> คุณพร้อมใช้งานหรือยัง
+          <button id="logoutIconBtn" class="btn btn-gray" title="ออกจากระบบ" aria-label="ออกจากระบบ">ออกจากระบบ</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container app-grid">
+      <!-- Sidebar -->
+      <aside>
+        <div class="card">
+          <div class="section nav">
+            <div class="title">เมนู</div>
+            <nav class="flex flex-col gap-1">
+              <a href="#" id="navUpload"   class="nav-item active">📤 อัปโหลด</a>
+              <a href="#" id="navHistory"  class="nav-item">📜 ประวัติ</a>
+              <a href="#" id="navFeedback" class="nav-item">🗣️ ผลการตอบรับ</a>
+              <a href="#" id="navStatus"  class="nav-item">🖥️ สถานะ AI</a>
+              <a href="#" id="navAccount"  class="nav-item">👤 บัญชี</a>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main>
+
+        <!-- Hero -->
+<!-- Hero -->
+<section id="heroSection" class="card section hero text-center" style="grid-column: 1 / -1;">
+  <div class="txt">
+    <h1 class="text-3xl font-extrabold mb-2">MimiNote.AI — AI ผู้ช่วยสรุปการประชุมของคุณ</h1>
+    <p class="text-gray-700">อัปโหลดไฟล์เสียง/วิดีโอ แล้วรับสรุปทันใจในไม่กี่คลิก</p>
+  </div>
+</section>
+
+        <!-- Upload -->
+        <section id="pageUpload" class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+          <!-- ซ้าย: อัปโหลด -->
+          <div class="card section">
+            <h2 class="text-2xl font-bold mb-2">อัปโหลดไฟล์เสียงหรือวิดีโอ</h2>
+
+            <label id="dropzone" class="dropzone cursor-pointer block">
+              <input id="fileInput" type="file" accept=".mp3,.mp4,.wav,.m4a,.ogg,.oga,.webm,.flac,.mpeg,.mpga" class="hidden"/>
+              <div class="flex flex-col items-center gap-2">
+                <span class="text-4xl">☁️⬆️</span>
+                <p class="font-semibold">ลากไฟล์มาวาง หรือคลิกเพื่อเลือกไฟล์</p>
+                <p class="file-hint">รองรับ .mp3 .mp4 .wav .m4a</p>
+                <p id="fileName" class="text-sm mt-1"></p>
+              </div>
+            </label>
+
+            <div class="flex gap-3 mt-4">
+              <button id="clearBtn" class="btn btn-gray">ล้างไฟล์</button>
+              <button id="mockBtn" class="btn btn-pink">สรุปกันเลย</button>
+            </div>
+          </div>
+
+          <!-- ขวา: ผลลัพธ์ -->
+          <div class="card section">
+            <h3 class="text-xl font-bold mb-3">ผลสรุปโดย MimiNote.AI</h3>
+
+            <div class="tabs">
+              <button id="tabSummary"   class="tab active">✨ AI Summary</button>
+              <button id="tabTranscript" class="tab">📄 Transcript</button>
+            </div>
+
+            <audio id="audioPlayer" class="w-full mb-3" controls></audio>
+
+            <div id="loading" class="hidden">กำลังประมวลผลด้วย AI ...</div>
+
+            <div id="progressWrap" class="hidden mt-2">
+              <div class="progress"><span id="progressBar" style="width:0%"><span id="progressLabel">0%</span></span></div>
+            </div>
+
+            <!-- Summary (Markdown) -->
+            <div id="panelSummary">
+              <div id="summaryPreview" class="panel prose max-w-none" style="max-height:260px; overflow:auto;"></div>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <a id="downloadTxt"  class="btn btn-gray" href="#" target="_blank" rel="noopener">TEXT</a>
+                <a id="downloadPdf"  class="btn btn-pink" href="#" target="_blank" rel="noopener">PDF</a>
+                <a id="downloadDocx" class="btn btn-yellow" href="#" target="_blank" rel="noopener">DOCX</a>
+              </div>
+            </div>
+
+            <!-- Transcript -->
+            <div id="panelTranscript" class="hidden">
+              <div id="transcriptPreview" class="panel transcript" style="max-height:260px; overflow:auto;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- History -->
+        <section id="pageHistory" class="hidden mt-6">
+          <div class="card section">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold">📜 ประวัติการใช้งาน</h2>
+              <button id="btnReloadJobs" class="btn btn-pink">รีเฟรช</button>
+            </div>
+            <div id="jobsEmpty" class="text-gray-500 text-sm mt-3 hidden">ยังไม่มีประวัติ</div>
+
+            <div class="mt-4 overflow-x-auto">
+              <table class="table text-sm">
+                <thead>
+                  <tr>
+                    <th>ไฟล์</th>
+                    <th>สถานะ</th>
+                    <th>วันที่</th>
+                    <th>การทำงาน</th>
+                  </tr>
+                </thead>
+                <tbody id="jobsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="jobDrawer" class="hidden card section mt-6">
+            <div class="flex items-center justify-between">
+              <div class="font-bold text-lg">รายละเอียดงาน</div>
+              <button id="closeDrawer" class="btn btn-gray">ปิด</button>
+            </div>
+            <div id="jobMeta" class="text-sm text-gray-600 mt-2"></div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <div class="font-semibold mb-2">Transcript</div>
+                <div id="drawerTranscript" class="panel transcript" style="max-height:190px; overflow:auto;"></div>
+              </div>
+              <div>
+                <div class="font-semibold mb-2">Summary (Markdown)</div>
+                <div id="drawerSummary" class="panel prose max-w-none" style="max-height:190px; overflow:auto;"></div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="font-semibold mb-2">ความคิดเห็น</div>
+              <div id="commentsList" class="space-y-2 text-sm"></div>
+              <div class="flex gap-2 mt-2">
+                <input id="commentInput" class="input" placeholder="พิมพ์ความคิดเห็น..."/>
+                <button id="commentSend" class="btn btn-yellow">ส่ง</button>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">* จะถามก่อนทุกครั้งว่าเปิดชื่อผู้ใช้ไหม</div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mt-4">
+              <a id="dlTxt"  class="btn btn-gray" href="#" target="_blank" rel="noopener">TEXT</a>
+              <a id="dlPdf"  class="btn btn-pink" href="#" target="_blank" rel="noopener">PDF</a>
+              <a id="dlDocx" class="btn btn-yellow" href="#" target="_blank" rel="noopener">DOCX</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Feedback -->
+        <section id="pageFeedback" class="hidden mt-6">
+          <div class="card section">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold">🗣️ ผลการตอบรับจากการใช้งาน</h2>
+              <button id="refreshFeed" class="btn btn-pink">รีเฟรช</button>
+            </div>
+            <div id="feedList" class="mt-4 space-y-3 text-sm"></div>
+          </div>
+        </section>
+
+        <section id="pageStatus" class="hidden mt-6">
+  <div class="card section">
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <div class="emoji-box">🖥️</div>
+        <div>
+          <h2 class="text-2xl font-bold">สถานะระบบ / AI</h2>
+          <div class="text-sm text-gray-600">
+            อัปเดตล่าสุด: <span id="statusTime">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm flex items-center gap-2">
+          <input id="autoRefresh" type="checkbox" />
+          Auto-refresh (15s)
+        </label>
+        <button id="btnRefreshStatus" class="btn btn-yellow">รีเฟรช</button>
+        <button id="btnCopyJSON" class="btn btn-gray">คัดลอก JSON</button>
+      </div>
+    </div>
+
+    <!-- Summary badge -->
+    <div class="status-badge mt-4" id="statusBadge">กำลังตรวจสอบ…</div>
+
+    <!-- KPI grid -->
+    <div class="status-grid mt-4">
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="dot" id="openaiDot"></span>
+          <span>OpenAI API</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-line"><span class="k">สถานะ</span><span id="openaiStatus">—</span></div>
+          <div class="kpi-line"><span class="k">ตัวอย่าง</span><span id="openaiSample" class="truncate" title=""></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="dot" id="ffmpegDot"></span>
+          <span>FFmpeg</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-line"><span class="k">เวอร์ชัน</span><span id="ffmpegVersion">—</span></div>
+          <div class="kpi-line"><span class="k">พาธ</span><span id="ffmpegPath" class="mono truncate" title=""></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="dot" id="ffprobeDot"></span>
+          <span>FFprobe</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-line"><span class="k">เวอร์ชัน</span><span id="ffprobeVersion">—</span></div>
+          <div class="kpi-line"><span class="k">พาธ</span><span id="ffprobePath" class="mono truncate" title=""></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">Limits</div>
+        <div class="kpi-body">
+          <ul class="mini-list" id="limitsList">
+            <li>Upload: —</li>
+            <li>Transcribe timeout: —</li>
+            <li>Process timeout: —</li>
+            <li>Summarize timeout: —</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">Uptime</div>
+        <div class="kpi-body">
+          <div class="uptime" id="uptimeValue">—</div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">Storage</div>
+        <div class="kpi-body">
+          <div class="kpi-line"><span class="k">Base path</span><span id="diskBase" class="mono truncate" title=""></span></div>
+          <div class="kpi-line"><span class="k">สถานะ</span><span id="diskStatus">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw JSON (collapsible) -->
+    <details class="mt-5">
+      <summary class="cursor-pointer text-sm text-gray-700">ดูรายละเอียด JSON (Raw)</summary>
+      <pre id="statusBox" class="json-box mt-2">—</pre>
+    </details>
+  </div>
+</section>
+
+
+        <!-- Account -->
+        <section id="pageAccount" class="hidden mt-6 grid md:grid-cols-2 gap-5">
+          <div class="card section">
+            <h2 class="text-2xl font-bold">โปรไฟล์</h2>
+            <div class="mt-4 space-y-4">
+              <div class="flex items-center gap-4">
+                <img id="accAvatarPreview" src="/logo.png" class="h-16 w-16 rounded-full border" alt="avatar"/>
+                <input type="file" id="accAvatar" accept="image/*" class="hidden"/>
+                <button id="accPickImage" class="btn btn-yellow">อัปโหลดภาพ</button>
+              </div>
+              <input id="accFullName" class="input" placeholder="ชื่อ-นามสกุล"/>
+              <input id="accBirthday" class="input" type="date" placeholder="วันเกิด"/>
+              <button id="accSaveProfile" class="btn btn-pink">บันทึกโปรไฟล์</button>
+              <div id="accMsg" class="text-sm text-green-700 hidden">บันทึกแล้ว</div>
+            </div>
+          </div>
+
+          <div class="card section">
+            <h2 class="text-2xl font-bold">เปลี่ยนรหัสผ่าน (local demo)</h2>
+            <div class="mt-4 space-y-3">
+              <input id="accUsername" class="input" placeholder="ชื่อผู้ใช้ (ปัจจุบัน)"/>
+              <input id="accNewPass" type="password" class="input" placeholder="รหัสผ่านใหม่"/>
+              <button id="accChangePass" class="btn btn-pink">เปลี่ยนรหัสผ่าน (local)</button>
+              <div id="accPwMsg" class="text-sm text-green-700 hidden">อัปเดตรหัสผ่านแล้ว</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="footer-note">— สร้างด้วยความรักโดย MimiNote.AI —</div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

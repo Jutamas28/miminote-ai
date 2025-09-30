@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>🎉 Welcome, <span id="user-name"></span></h2>
+      <p>You are now logged in!</p>
+
+      <!-- Change password -->
+      <h3>Change Password</h3>
+      <form id="change-form">
+        <input
+          type="password"
+          id="old-password"
+          placeholder="Old Password"
+          required
+        />
+        <input
+          type="password"
+          id="new-password"
+          placeholder="New Password"
+          required
+        />
+        <button type="submit">Change</button>
+      </form>
+
+      <button id="logout" style="margin-top: 20px">Logout</button>
+    </div>
+
+    <script>
+      const currentUser = localStorage.getItem("currentUser");
+      if (!currentUser) {
+        window.location.href = "index.html";
+      } else {
+        document.getElementById("user-name").textContent = currentUser;
+      }
+
+      // Change password
+      document.getElementById("change-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const oldPass = document.getElementById("old-password").value;
+        const newPass = document.getElementById("new-password").value;
+
+        let users = JSON.parse(localStorage.getItem("users")) || {};
+
+        if (users[currentUser] && users[currentUser] === oldPass) {
+          users[currentUser] = newPass;
+          localStorage.setItem("users", JSON.stringify(users));
+          alert("✅ Password updated successfully!");
+          document.getElementById("change-form").reset();
+        } else {
+          alert("❌ Old password is incorrect");
+        }
+      });
+
+      // Logout
+      document.getElementById("logout").addEventListener("click", () => {
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("rememberedUser");
+        window.location.href = "index.html";
+      });
+    </script>
+  </body>
+</html>
