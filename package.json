@@ -10,7 +10,7 @@
     "tw:init": "tailwindcss init -p",
     "tw:build": "tailwindcss -i ./src/input.css -o ./styles.css --minify",
     "tw:watch": "tailwindcss -i ./src/input.css -o ./styles.css --watch",
-    "build": "npm run tw:build && node server.js"
+    "build": "node server.js"
  
   },
   "dependencies": {
